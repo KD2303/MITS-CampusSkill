@@ -1,0 +1,10 @@
+export { default as Home } from './Home';
+export { default as Login } from './Login';
+export { default as Register } from './Register';
+export { default as BrowseTasks } from './BrowseTasks';
+export { default as TaskDetails } from './TaskDetails';
+export { default as Dashboard } from './Dashboard';
+export { default as Profile } from './Profile';
+export { default as EditProfile } from './EditProfile';
+export { default as Leaderboard } from './Leaderboard';
+export { default as PostTask } from './PostTask';

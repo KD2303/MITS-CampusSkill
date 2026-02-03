@@ -1,0 +1,22 @@
+import express from 'express';
+import {
+  getChatByTask,
+  getChatRoom,
+  sendMessage,
+  markAsRead,
+  getMyChats,
+} from '../controllers/chatController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// All routes are protected
+router.use(protect);
+
+router.get('/my-chats', getMyChats);
+router.get('/task/:taskId', getChatByTask);
+router.get('/:id', getChatRoom);
+router.post('/:id/message', sendMessage);
+router.put('/:id/read', markAsRead);
+
+export default router;
