@@ -89,18 +89,18 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background-light dark:bg-background-dark">
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-brand-dark">
       <div className="max-w-md w-full">
-        <div className="card p-8">
+        <div className="card shadow-glow border-brand-orange/10 backdrop-blur-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-mits-blue rounded-xl flex items-center justify-center mx-auto mb-4">
-              <UserPlus className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-brand-orange/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand-orange/20">
+              <UserPlus className="w-8 h-8 text-brand-orange" />
             </div>
-            <h2 className="text-2xl font-bold text-text-primary dark:text-text-dark">
+            <h2 className="text-3xl font-bold text-white tracking-tight">
               Create Account
             </h2>
-            <p className="text-text-secondary dark:text-text-dark-secondary mt-2">
+            <p className="text-brand-text-secondary mt-2">
               Join CampusSkill and start collaborating
             </p>
           </div>
@@ -109,12 +109,12 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="label">
+              <label htmlFor="name" className="block text-sm font-medium text-brand-text-secondary mb-2 ml-1">
                 Full Name
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-text-secondary" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-brand-orange text-brand-text-muted">
+                  <User className="h-5 w-5" />
                 </div>
                 <input
                   id="name"
@@ -123,23 +123,23 @@ const Register = () => {
                   autoComplete="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`input pl-10 ${errors.name ? 'input-error' : ''}`}
+                  className={`input pl-12 ${errors.name ? 'border-red-500/50 focus:border-red-500/50' : ''}`}
                   placeholder="John Doe"
                 />
               </div>
               {errors.name && (
-                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.name}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="label">
+              <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary mb-2 ml-1">
                 Email Address
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-text-secondary" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-brand-orange text-brand-text-muted">
+                  <Mail className="h-5 w-5" />
                 </div>
                 <input
                   id="email"
@@ -148,18 +148,18 @@ const Register = () => {
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
+                  className={`input pl-12 ${errors.email ? 'border-red-500/50 focus:border-red-500/50' : ''}`}
                   placeholder="you@mits.ac.in"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.email}</p>
               )}
             </div>
 
             {/* Role Selection */}
             <div>
-              <label className="label">Select Your Role</label>
+              <label className="block text-sm font-medium text-brand-text-secondary mb-3 ml-1">Select Your Role</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -167,24 +167,16 @@ const Register = () => {
                     setFormData((prev) => ({ ...prev, role: 'teacher' }));
                     if (errors.role) setErrors((prev) => ({ ...prev, role: '' }));
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
                     formData.role === 'teacher'
-                      ? 'border-mits-blue bg-mits-blue/5'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-mits-blue/50'
+                      ? 'border-brand-orange bg-brand-orange/5 text-brand-orange'
+                      : 'border-brand-border bg-brand-surface/50 text-brand-text-muted hover:border-brand-orange/50 hover:text-brand-text-secondary'
                   }`}
                 >
                   <BookOpen
-                    className={`w-8 h-8 mx-auto mb-2 ${
-                      formData.role === 'teacher' ? 'text-mits-blue' : 'text-text-secondary'
-                    }`}
+                    className="w-6 h-6"
                   />
-                  <p
-                    className={`font-medium ${
-                      formData.role === 'teacher'
-                        ? 'text-mits-blue'
-                        : 'text-text-primary dark:text-text-dark'
-                    }`}
-                  >
+                  <p className="font-bold text-sm uppercase tracking-wider">
                     Teacher
                   </p>
                 </button>
@@ -194,41 +186,33 @@ const Register = () => {
                     setFormData((prev) => ({ ...prev, role: 'student' }));
                     if (errors.role) setErrors((prev) => ({ ...prev, role: '' }));
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
                     formData.role === 'student'
-                      ? 'border-mits-blue bg-mits-blue/5'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-mits-blue/50'
+                      ? 'border-brand-orange bg-brand-orange/5 text-brand-orange'
+                      : 'border-brand-border bg-brand-surface/50 text-brand-text-muted hover:border-brand-orange/50 hover:text-brand-text-secondary'
                   }`}
                 >
                   <GraduationCap
-                    className={`w-8 h-8 mx-auto mb-2 ${
-                      formData.role === 'student' ? 'text-mits-blue' : 'text-text-secondary'
-                    }`}
+                    className="w-6 h-6"
                   />
-                  <p
-                    className={`font-medium ${
-                      formData.role === 'student'
-                        ? 'text-mits-blue'
-                        : 'text-text-primary dark:text-text-dark'
-                    }`}
-                  >
+                  <p className="font-bold text-sm uppercase tracking-wider">
                     Student
                   </p>
                 </button>
               </div>
               {errors.role && (
-                <p className="mt-1 text-sm text-red-500">{errors.role}</p>
+                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.role}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="label">
+              <label htmlFor="password" className="block text-sm font-medium text-brand-text-secondary mb-2 ml-1">
                 Password
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-text-secondary" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-brand-orange text-brand-text-muted">
+                  <Lock className="h-5 w-5" />
                 </div>
                 <input
                   id="password"
@@ -237,34 +221,34 @@ const Register = () => {
                   autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`input pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
+                  className={`input pl-12 pr-10 ${errors.password ? 'border-red-500/50 focus:border-red-500/50' : ''}`}
                   placeholder="Create a password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-brand-text-muted hover:text-brand-orange transition-colors"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-text-secondary hover:text-text-primary" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <Eye className="h-5 w-5 text-text-secondary hover:text-text-primary" />
+                    <Eye className="h-5 w-5" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.password}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="label">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-brand-text-secondary mb-2 ml-1">
                 Confirm Password
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-text-secondary" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-brand-orange text-brand-text-muted">
+                  <Lock className="h-5 w-5" />
                 </div>
                 <input
                   id="confirmPassword"
@@ -273,12 +257,12 @@ const Register = () => {
                   autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`input pl-10 ${errors.confirmPassword ? 'input-error' : ''}`}
+                  className={`input pl-12 ${errors.confirmPassword ? 'border-red-500/50 focus:border-red-500/50' : ''}`}
                   placeholder="Confirm your password"
                 />
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
+                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -286,19 +270,19 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3"
+              className="btn-primary w-full py-4 font-bold shadow-glow"
             >
               {loading ? <ButtonLoading /> : 'Create Account'}
             </button>
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-text-secondary dark:text-text-dark-secondary">
+          <div className="mt-8 text-center pt-6 border-t border-brand-border/50">
+            <p className="text-brand-text-secondary">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="text-mits-blue hover:text-mits-blue-light font-medium"
+                className="text-brand-orange font-bold hover:underline"
               >
                 Sign in
               </Link>

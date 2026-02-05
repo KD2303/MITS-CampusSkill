@@ -14,7 +14,7 @@ import {
   Trophy,
   ChevronDown,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -22,6 +22,15 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -31,37 +40,37 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: '/browse', label: 'Browse Tasks', icon: Search },
+    { to: '/browse', label: 'Browse', icon: Search },
     { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   ];
 
   const authLinks = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/post-task', label: 'Post Task', icon: PlusCircle },
   ];
 
   return (
-    <nav className="bg-surface-light dark:bg-surface-dark shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      scrolled ? 'glass-header py-2' : 'bg-transparent py-4'
+    }`}>
+      <div className="wrapper">
+        <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-mits-blue rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">M</span>
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-display font-bold text-xl shadow-glow transition-transform group-hover:scale-110">
+              M
             </div>
-            <div className="hidden sm:block">
-              <span className="text-mits-blue font-bold text-xl">Campus</span>
-              <span className="text-mits-orange font-bold text-xl">Skill</span>
-            </div>
+            <span className="font-display font-bold text-xl tracking-tight text-white group-hover:text-brand-orange transition-colors">
+              CampusSkill
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-text-secondary dark:text-text-dark-secondary hover:text-mits-blue dark:hover:text-mits-orange transition-colors font-medium"
+                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
               >
                 {link.label}
               </Link>
@@ -73,7 +82,7 @@ const Navbar = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className="text-text-secondary dark:text-text-dark-secondary hover:text-mits-blue dark:hover:text-mits-orange transition-colors font-medium"
+                    className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
                   >
                     {link.label}
                   </Link>
@@ -84,65 +93,65 @@ const Navbar = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
-            {/* Theme toggle */}
-            <button
+            {/* Theme toggle - Hidden for now as we are dark-first, but kept for logic */}
+            {/* <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
+              className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
             >
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+            </button> */}
 
             {isAuthenticated ? (
               /* Profile dropdown */
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center space-x-2 pl-2 pr-1 py-1 rounded-full bg-brand-surface border border-brand-border hover:border-brand-orange/50 transition-all"
                 >
-                  <div className="w-8 h-8 rounded-full bg-mits-blue flex items-center justify-center">
-                    <span className="text-white font-medium text-sm">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </span>
+                  <div className="w-8 h-8 rounded-full bg-brand-orange/20 flex items-center justify-center text-brand-orange font-bold text-sm">
+                    {user?.name?.charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden sm:block text-text-primary dark:text-text-dark font-medium">
-                    {user?.name?.split(' ')[0]}
-                  </span>
-                  <ChevronDown size={16} className="text-text-secondary" />
+                  <ChevronDown size={14} className="text-gray-400" />
                 </button>
 
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg py-2 border border-gray-200 dark:border-gray-700">
-                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                      <p className="font-medium text-text-primary dark:text-text-dark">
+                  <div className="absolute right-0 mt-2 w-64 bg-brand-card border border-brand-border rounded-xl shadow-xl py-2 animate-fade-in overflow-hidden">
+                    <div className="px-4 py-3 border-b border-brand-border mb-2 bg-brand-surface/50">
+                      <p className="font-bold text-white truncate">
                         {user?.name}
                       </p>
-                      <p className="text-sm text-text-secondary dark:text-text-dark-secondary">
+                      <p className="text-xs text-gray-400 truncate">
                         {user?.email}
                       </p>
-                      <span className={user?.role === 'teacher' ? 'badge-teacher' : 'badge-student'}>
-                        {user?.role === 'teacher' ? 'Teacher' : 'Student'}
+                      <span className={`mt-2 inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
+                        user?.role === 'teacher' ? 'bg-brand-orange/20 text-brand-orange' : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {user?.role}
                       </span>
                     </div>
+                    
+                    <Link
+                      to="/post-task"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-brand-orange transition-colors"
+                    >
+                      <PlusCircle size={18} />
+                      <span>Post Task</span>
+                    </Link>
+
+                    <div className="h-px bg-brand-border my-2 mx-4" />
+
                     <Link
                       to="/profile"
                       onClick={() => setIsProfileMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-2 text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
                     >
                       <User size={18} />
                       <span>Profile</span>
                     </Link>
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setIsProfileMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-2 text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
-                      <LayoutDashboard size={18} />
-                      <span>Dashboard</span>
-                    </Link>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 w-full"
+                      className="flex items-center space-x-3 px-4 py-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 w-full transition-colors"
                     >
                       <LogOut size={18} />
                       <span>Logout</span>
@@ -153,11 +162,11 @@ const Navbar = () => {
             ) : (
               /* Auth buttons */
               <div className="hidden sm:flex items-center space-x-3">
-                <Link to="/login" className="btn-ghost">
+                <Link to="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                   Login
                 </Link>
-                <Link to="/register" className="btn-primary">
-                  Sign Up
+                <Link to="/register" className="btn-primary px-6 py-2 text-sm">
+                  Join Us
                 </Link>
               </div>
             )}
@@ -165,7 +174,7 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="md:hidden p-2 rounded-full text-gray-300 hover:bg-white/10 transition-colors"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -174,14 +183,14 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col space-y-2">
+          <div className="md:hidden mt-4 p-4 rounded-2xl bg-brand-card border border-brand-border animate-slide-up">
+            <div className="flex flex-col space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-4 py-2 text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white rounded-xl"
                 >
                   <link.icon size={20} />
                   <span>{link.label}</span>
@@ -195,28 +204,36 @@ const Navbar = () => {
                       key={link.to}
                       to={link.to}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-2 text-text-secondary dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                      className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white rounded-xl"
                     >
                       <link.icon size={20} />
                       <span>{link.label}</span>
                     </Link>
                   ))}
+                  <div className="h-px bg-brand-border my-2" />
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl w-full"
+                  >
+                    <LogOut size={20} />
+                    <span>Logout</span>
+                  </button>
                 </>
               ) : (
-                <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col space-y-3 pt-3 border-t border-brand-border mt-2">
                   <Link
                     to="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="btn-ghost justify-center"
+                    className="btn-secondary w-full"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="btn-primary justify-center"
+                    className="btn-primary w-full shadow-glow"
                   >
-                    Sign Up
+                    Join Us
                   </Link>
                 </div>
               )}

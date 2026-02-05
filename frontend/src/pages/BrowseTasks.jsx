@@ -67,43 +67,48 @@ const BrowseTasks = () => {
   const hasActiveFilters = Object.values(filters).some((v) => v !== '');
 
   return (
-    <div className="page-container animate-fade-in">
+    <div className="wrapper py-8 animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-primary dark:text-text-dark mb-2">
-          Browse Tasks
-        </h1>
-        <p className="text-text-secondary dark:text-text-dark-secondary">
-          Find tasks that match your skills and interests
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div>
+          <h1 className="text-4xl font-bold mb-3 tracking-tight">
+            Browse <span className="text-gradient">Tasks</span>
+          </h1>
+          <p className="text-brand-text-secondary max-w-lg">
+            Explore and contribute to various project tasks across the campus. Filter by skill, role, or status to find your next challenge.
+          </p>
+        </div>
+        <div className="text-brand-text-muted text-sm font-medium">
+          Showing {tasks.length} of {pagination.total} available tasks
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
+      <div className="mb-10 space-y-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-5 h-5" />
+          <div className="flex-1 relative group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-text-muted group-focus-within:text-brand-orange transition-colors w-5 h-5" />
             <input
               type="text"
-              placeholder="Search tasks..."
+              placeholder="Search by title, description or skills..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="input pl-10 w-full"
+              className="input pl-12 h-12"
             />
           </div>
 
           {/* Filter toggle button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-outline flex items-center space-x-2 ${
-              hasActiveFilters ? 'border-mits-blue text-mits-blue' : ''
+            className={`btn-secondary h-12 px-6 flex items-center space-x-3 ${
+              showFilters ? 'border-brand-orange/50 bg-brand-orange/5' : ''
             }`}
           >
-            <Filter size={20} />
-            <span>Filters</span>
+            <Filter size={18} className={hasActiveFilters ? 'text-brand-orange' : ''} />
+            <span className="font-semibold text-sm">Filters</span>
             {hasActiveFilters && (
-              <span className="w-5 h-5 bg-mits-blue text-white rounded-full text-xs flex items-center justify-center">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-orange text-[10px] font-bold text-white shadow-glow">
                 {Object.values(filters).filter((v) => v !== '').length}
               </span>
             )}
@@ -112,46 +117,45 @@ const BrowseTasks = () => {
 
         {/* Filter options */}
         {showFilters && (
-          <div className="card p-4 animate-fade-in">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="card border-brand-orange/10 bg-brand-card/30 p-6 animate-slide-up">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Status filter */}
-              <div>
-                <label className="label">Status</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-brand-text-muted ml-1">Status</label>
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="input"
+                  className="input h-11 bg-brand-dark/50"
                 >
                   <option value="">All Statuses</option>
                   <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
                   <option value="submitted">Submitted</option>
                   <option value="completed">Completed</option>
-                  <option value="reassigned">Reassigned</option>
                 </select>
               </div>
 
               {/* Poster role filter */}
-              <div>
-                <label className="label">Posted By</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-brand-text-muted ml-1">Posted By</label>
                 <select
                   value={filters.posterRole}
                   onChange={(e) => handleFilterChange('posterRole', e.target.value)}
-                  className="input"
+                  className="input h-11 bg-brand-dark/50"
                 >
-                  <option value="">All</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="student">Student</option>
+                  <option value="">Everyone</option>
+                  <option value="teacher">Teachers</option>
+                  <option value="student">Students</option>
                 </select>
               </div>
 
               {/* Skill filter */}
-              <div>
-                <label className="label">Skill</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-brand-text-muted ml-1">Necessary Skill</label>
                 <select
                   value={filters.skill}
                   onChange={(e) => handleFilterChange('skill', e.target.value)}
-                  className="input"
+                  className="input h-11 bg-brand-dark/50"
                 >
                   <option value="">All Skills</option>
                   {SKILLS.map((skill) => (
@@ -164,12 +168,12 @@ const BrowseTasks = () => {
             </div>
 
             {hasActiveFilters && (
-              <div className="mt-4 flex justify-end">
+              <div className="mt-6 flex justify-end pt-4 border-t border-brand-border/50">
                 <button
                   onClick={clearFilters}
-                  className="text-sm text-mits-blue hover:text-mits-blue-light flex items-center space-x-1"
+                  className="text-xs font-bold uppercase tracking-widest text-brand-text-muted hover:text-brand-orange flex items-center space-x-2 transition-colors"
                 >
-                  <X size={16} />
+                  <X size={14} />
                   <span>Clear all filters</span>
                 </button>
               </div>
@@ -178,17 +182,16 @@ const BrowseTasks = () => {
         )}
       </div>
 
-      {/* Results count */}
-      <div className="mb-4 text-text-secondary dark:text-text-dark-secondary">
-        {pagination.total} task{pagination.total !== 1 ? 's' : ''} found
-      </div>
-
       {/* Tasks Grid */}
       {loading ? (
-        <PageLoading />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="card h-64 animate-pulse bg-brand-card/20 border-brand-border/20"></div>
+          ))}
+        </div>
       ) : tasks.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {tasks.map((task) => (
               <TaskCard key={task._id} task={task} />
             ))}
@@ -196,25 +199,27 @@ const BrowseTasks = () => {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="mt-8 flex justify-center space-x-2">
+            <div className="mt-12 flex justify-center items-center space-x-6">
               <button
                 onClick={() =>
                   setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
                 }
                 disabled={pagination.page === 1}
-                className="btn-outline px-4 py-2 disabled:opacity-50"
+                className="btn-secondary px-6 h-11 disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 Previous
               </button>
-              <span className="flex items-center px-4 text-text-secondary dark:text-text-dark-secondary">
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
+              <div className="flex items-center space-x-1 font-medium">
+                <span className="text-brand-orange">{pagination.page}</span>
+                <span className="text-brand-text-muted">/</span>
+                <span className="text-brand-text-primary">{pagination.totalPages}</span>
+              </div>
               <button
                 onClick={() =>
                   setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
                 }
                 disabled={pagination.page === pagination.totalPages}
-                className="btn-outline px-4 py-2 disabled:opacity-50"
+                className="btn-secondary px-6 h-11 disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 Next
               </button>
@@ -222,19 +227,21 @@ const BrowseTasks = () => {
           )}
         </>
       ) : (
-        <EmptyState
-          title="No tasks found"
-          description={
-            hasActiveFilters
-              ? 'Try adjusting your filters to find more tasks.'
-              : 'Be the first to post a task!'
-          }
-          action={
-            <Link to="/post-task" className="btn-primary">
-              Post a Task
-            </Link>
-          }
-        />
+        <div className="py-20">
+          <EmptyState
+            title="No tasks found"
+            description={
+              hasActiveFilters
+                ? 'Try adjusting your filters or search terms to find more results.'
+                : 'Be the first one to post a task and kickstart a new project!'
+            }
+            action={
+              <Link to="/post-task" className="btn-primary">
+                Post a Task
+              </Link>
+            }
+          />
+        </div>
       )}
     </div>
   );

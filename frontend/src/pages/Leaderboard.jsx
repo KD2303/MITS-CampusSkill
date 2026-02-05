@@ -30,14 +30,14 @@ const Leaderboard = () => {
   const getRankIcon = (rank) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-6 h-6 text-yellow-500" />;
+        return <Trophy className="w-6 h-6 text-yellow-500 shadow-glow" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-400" />;
+        return <Medal className="w-6 h-6 text-slate-300" />;
       case 3:
-        return <Medal className="w-6 h-6 text-amber-600" />;
+        return <Medal className="w-6 h-6 text-amber-500" />;
       default:
         return (
-          <span className="w-6 h-6 flex items-center justify-center text-text-secondary font-medium">
+          <span className="w-6 h-6 flex items-center justify-center text-brand-text-muted font-bold text-xs ring-1 ring-brand-border rounded-full">
             {rank}
           </span>
         );
@@ -47,34 +47,33 @@ const Leaderboard = () => {
   const getRankBgColor = (rank) => {
     switch (rank) {
       case 1:
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+        return 'bg-yellow-500/5 group-hover:bg-yellow-500/10';
       case 2:
-        return 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700';
+        return 'bg-slate-500/5 group-hover:bg-slate-500/10';
       case 3:
-        return 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
+        return 'bg-amber-500/5 group-hover:bg-amber-500/10';
       default:
         return '';
     }
   };
 
   return (
-    <div className="page-container animate-fade-in">
+    <div className="wrapper py-8 animate-fade-in text-white">
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center space-x-3 mb-4">
-          <Trophy className="w-10 h-10 text-mits-orange" />
-          <h1 className="text-3xl md:text-4xl font-bold text-text-primary dark:text-text-dark">
-            Leaderboard
-          </h1>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          <div className="flex items-center space-x-3 mb-2">
+            <Trophy className="w-10 h-10 text-brand-orange" />
+            <h1 className="text-4xl font-bold tracking-tight">
+              Skill <span className="text-gradient">Leaderboard</span>
+            </h1>
+          </div>
+          <p className="text-brand-text-secondary text-lg text-left">
+            Celebrating the top contributors and experts in the MITS community.
+          </p>
         </div>
-        <p className="text-text-secondary dark:text-text-dark-secondary">
-          Top performers ranked by total points
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        
+        <div className="flex bg-brand-surface p-1 rounded-xl border border-brand-border h-12">
           {[
             { id: 'all', label: 'All', icon: Users },
             { id: 'student', label: 'Students', icon: Award },
@@ -83,173 +82,183 @@ const Leaderboard = () => {
             <button
               key={item.id}
               onClick={() => setFilter(item.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+              className={`flex items-center space-x-2 px-6 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${
                 filter === item.id
-                  ? 'bg-white dark:bg-surface-dark shadow text-mits-blue'
-                  : 'text-text-secondary hover:text-text-primary dark:hover:text-text-dark'
+                  ? 'bg-brand-orange text-white shadow-glow'
+                  : 'text-brand-text-muted hover:text-brand-text-secondary'
               }`}
             >
-              <item.icon size={18} />
+              <item.icon size={16} />
               <span>{item.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Top 3 Podium */}
+      {/* Podium Section */}
       {!loading && users.length >= 3 && (
-        <div className="flex items-end justify-center space-x-4 mb-12">
+        <div className="podium-section flex items-end justify-center space-x-4 mb-20 px-4">
           {/* Second place */}
-          <div className="text-center">
+          <div className="text-center group flex-1 max-w-[140px]">
             <Link to={`/user/${users[1]?._id}`}>
-              <div className="relative mb-3">
-                <Avatar
-                  name={users[1]?.name}
-                  src={users[1]?.avatar}
-                  size="large"
-                  className="ring-4 ring-gray-400"
-                />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold">
-                  2
+              <div className="relative mb-4 group-hover:-translate-y-2 transition-transform duration-500">
+                <div className="relative mx-auto inline-block">
+                   <Avatar
+                     name={users[1]?.name}
+                     src={users[1]?.avatar}
+                     size="large"
+                     className="ring-[6px] ring-slate-500/30"
+                   />
+                   <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-8 h-8 bg-slate-500 rounded-full flex items-center justify-center text-white font-bold border-4 border-brand-dark overflow-hidden">
+                     2
+                   </div>
                 </div>
               </div>
-              <p className="font-semibold text-text-primary dark:text-text-dark truncate max-w-[100px]">
+              <p className="font-bold text-white truncate px-2 mb-1">
                 {users[1]?.name}
               </p>
-              <p className="text-mits-orange font-medium">
-                {formatNumber(users[1]?.totalPoints)} pts
+              <p className="text-slate-400 font-bold text-sm mb-4">
+                {formatNumber(users[1]?.totalPoints)} <span className="text-[10px] uppercase tracking-tighter">PTS</span>
               </p>
             </Link>
-            <div className="w-24 h-20 bg-gray-400 rounded-t-lg mt-2" />
+            <div className="w-full h-24 bg-gradient-to-b from-slate-500/20 to-transparent rounded-t-2xl border-t border-x border-slate-500/30 shadow-2xl" />
           </div>
 
           {/* First place */}
-          <div className="text-center">
+          <div className="text-center group flex-1 max-w-[170px]">
             <Link to={`/user/${users[0]?._id}`}>
-              <div className="relative mb-3">
-                <Avatar
-                  name={users[0]?.name}
-                  src={users[0]?.avatar}
-                  size="xl"
-                  className="ring-4 ring-yellow-500"
-                />
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">
-                  <Trophy size={20} />
+              <div className="relative mb-5 group-hover:-translate-y-3 transition-transform duration-500">
+                <div className="relative mx-auto inline-block">
+                   <Avatar
+                     name={users[0]?.name}
+                     src={users[0]?.avatar}
+                     size="xl"
+                     className="ring-[8px] ring-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.2)]"
+                   />
+                   <div className="absolute -bottom-3 right-1/2 translate-x-1/2 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white shadow-glow border-4 border-brand-dark overflow-hidden">
+                     <Trophy size={18} />
+                   </div>
                 </div>
               </div>
-              <p className="font-semibold text-text-primary dark:text-text-dark text-lg truncate max-w-[120px]">
+              <p className="font-bold text-white text-xl truncate px-2 mb-1">
                 {users[0]?.name}
               </p>
-              <p className="text-mits-orange font-bold text-lg">
-                {formatNumber(users[0]?.totalPoints)} pts
+              <p className="text-yellow-500 font-bold text-lg mb-6">
+                {formatNumber(users[0]?.totalPoints)} <span className="text-xs uppercase tracking-tighter">PTS</span>
               </p>
             </Link>
-            <div className="w-28 h-28 bg-yellow-500 rounded-t-lg mt-2" />
+            <div className="w-full h-40 bg-gradient-to-b from-yellow-500/30 to-transparent rounded-t-2xl border-t border-x border-yellow-500/40 shadow-[0_0_40px_rgba(234,179,8,0.1)]" />
           </div>
 
           {/* Third place */}
-          <div className="text-center">
+          <div className="text-center group flex-1 max-w-[140px]">
             <Link to={`/user/${users[2]?._id}`}>
-              <div className="relative mb-3">
-                <Avatar
-                  name={users[2]?.name}
-                  src={users[2]?.avatar}
-                  size="large"
-                  className="ring-4 ring-amber-600"
-                />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center text-white font-bold">
-                  3
+              <div className="relative mb-4 group-hover:-translate-y-2 transition-transform duration-500">
+                <div className="relative mx-auto inline-block">
+                   <Avatar
+                     name={users[2]?.name}
+                     src={users[2]?.avatar}
+                     size="large"
+                     className="ring-[6px] ring-amber-700/30"
+                   />
+                   <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center text-white font-bold border-4 border-brand-dark overflow-hidden">
+                     3
+                   </div>
                 </div>
               </div>
-              <p className="font-semibold text-text-primary dark:text-text-dark truncate max-w-[100px]">
+              <p className="font-bold text-white truncate px-2 mb-1">
                 {users[2]?.name}
               </p>
-              <p className="text-mits-orange font-medium">
-                {formatNumber(users[2]?.totalPoints)} pts
+              <p className="text-amber-600 font-bold text-sm mb-4">
+                {formatNumber(users[2]?.totalPoints)} <span className="text-[10px] uppercase tracking-tighter">PTS</span>
               </p>
             </Link>
-            <div className="w-24 h-14 bg-amber-600 rounded-t-lg mt-2" />
+            <div className="w-full h-16 bg-gradient-to-b from-amber-700/20 to-transparent rounded-t-2xl border-t border-x border-amber-700/30 shadow-2xl" />
           </div>
         </div>
       )}
 
       {/* Full List */}
       {loading ? (
-        <PageLoading />
+        <div className="space-y-4">
+           {[1,2,3,4,5].map(i => <div key={i} className="h-16 w-full card animate-pulse bg-brand-surface/50" />)}
+        </div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card shadow-2xl border-brand-border/30 overflow-hidden bg-brand-surface/10 p-0">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-brand-surface/50 border-b border-brand-border text-left">
+                  <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
                     Rank
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
-                    User
+                  <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
+                    Contributor
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
+                  <th className="px-8 py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
                     Role
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
-                    Tasks
+                  <th className="px-8 py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
+                    Credits
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
-                    Rating
+                  <th className="px-8 py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
+                    Exp
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-text-secondary dark:text-text-dark-secondary">
-                    Points
+                  <th className="px-8 py-5 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text-muted">
+                    Total Points
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-brand-border/30">
                 {users.map((leaderUser) => (
                   <tr
                     key={leaderUser._id}
-                    className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${getRankBgColor(
+                    className={`group transition-all hover:bg-white/5 ${getRankBgColor(
                       leaderUser.rank
                     )}`}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-5 font-bold">
                       <div className="flex items-center">
                         {getRankIcon(leaderUser.rank)}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-5 text-left">
                       <Link
                         to={`/user/${leaderUser._id}`}
-                        className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                        className="flex items-center space-x-4 hover:translate-x-1 transition-transform"
                       >
-                        <Avatar name={leaderUser.name} src={leaderUser.avatar} />
-                        <span className="font-medium text-text-primary dark:text-text-dark">
+                        <Avatar name={leaderUser.name} src={leaderUser.avatar} className="border border-white/5" />
+                        <span className="font-bold text-white group-hover:text-brand-orange transition-colors">
                           {leaderUser.name}
                         </span>
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-8 py-5 text-center">
                       <span
-                        className={
+                        className={`text-[10px] font-bold uppercase border px-2 py-1 rounded-md ${
                           leaderUser.role === 'teacher'
-                            ? 'badge-teacher'
-                            : 'badge-student'
-                        }
+                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                            : 'bg-brand-orange/10 text-brand-orange border-brand-orange/20'
+                        }`}
                       >
-                        {leaderUser.role === 'teacher' ? 'T' : 'S'}
+                        {leaderUser.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center text-text-secondary dark:text-text-dark-secondary">
-                      {leaderUser.tasksCompleted}
+                    <td className="px-8 py-5 text-center">
+                      <span className="font-medium text-brand-text-secondary">
+                        {leaderUser.tasksCompleted || 0}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-text-primary dark:text-text-dark">
+                    <td className="px-8 py-5 text-center">
+                      <div className="flex items-center justify-center space-x-2">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500/20" />
+                        <span className="font-bold text-brand-text-secondary text-sm">
                           {leaderUser.averageRating?.toFixed(1) || '0.0'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="font-semibold text-mits-orange">
+                    <td className="px-8 py-5 text-right">
+                      <span className="font-black text-brand-orange text-lg">
                         {formatNumber(leaderUser.totalPoints)}
                       </span>
                     </td>

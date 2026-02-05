@@ -5,67 +5,91 @@ import { getStatusColor, getStatusLabel, formatDate, getDaysUntil, truncateText 
 const TaskCard = ({ task }) => {
   const daysUntil = getDaysUntil(task.deadline);
   const isOverdue = daysUntil !== null && daysUntil < 0;
+  const isUrgent = daysUntil !== null && daysUntil >= 0 && daysUntil <= 2;
+
+  const statusStyles = {
+    open: 'bg-green-500/10 text-green-400 border-green-500/20',
+    in_progress: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    submitted: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    completed: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    reassigned: 'bg-red-500/10 text-red-400 border-red-500/20',
+  };
+
+  const currentStatusStyle = statusStyles[task.status] || statusStyles.open;
 
   return (
     <Link to={`/tasks/${task._id}`}>
-      <div className="card p-5 h-full flex flex-col transition-all duration-200 hover:translate-y-[-2px]">
+      <div className="card card-hover h-full flex flex-col group">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <span className={task.posterRole === 'teacher' ? 'badge-teacher' : 'badge-student'}>
-              {task.posterRole === 'teacher' ? 'T' : 'S'}
-            </span>
-            <span className={getStatusColor(task.status)}>
+            <div className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+              task.posterRole === 'teacher' 
+                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' 
+                : 'bg-brand-orange/10 text-brand-orange border border-brand-orange/20'
+            }`}>
+              {task.posterRole}
+            </div>
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border ${currentStatusStyle}`}>
               {getStatusLabel(task.status)}
             </span>
           </div>
           {task.creditPoints > 0 && (
-            <div className="flex items-center space-x-1 text-mits-orange font-semibold">
-              <Award size={16} />
-              <span>{task.creditPoints} credits</span>
+            <div className="flex items-center space-x-1 text-brand-orange font-bold">
+              <Award size={16} className="text-brand-orange" />
+              <span className="text-sm">{task.creditPoints}</span>
             </div>
           )}
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-semibold text-text-primary dark:text-text-dark mb-2 line-clamp-2">
+        <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-brand-orange transition-colors">
           {task.title}
         </h3>
 
         {/* Description */}
-        <p className="text-text-secondary dark:text-text-dark-secondary text-sm mb-4 line-clamp-2 flex-grow">
-          {truncateText(task.description, 120)}
+        <p className="text-brand-text-secondary text-sm mb-4 line-clamp-2 flex-grow">
+          {task.description}
         </p>
 
         {/* Skills */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-6">
           {task.skills?.slice(0, 3).map((skill, index) => (
-            <span key={index} className="skill-tag text-xs">
+            <span key={index} className="px-2 py-0.5 rounded-full bg-brand-surface border border-brand-border text-brand-text-secondary text-[11px]">
               {skill}
             </span>
           ))}
           {task.skills?.length > 3 && (
-            <span className="skill-tag text-xs">+{task.skills.length - 3}</span>
+            <span className="px-2 py-0.5 rounded-full bg-brand-surface border border-brand-border text-brand-text-secondary text-[11px]">
+              +{task.skills.length - 3}
+            </span>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-sm text-text-secondary dark:text-text-dark-secondary border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
-          <div className="flex items-center space-x-1">
-            <User size={14} />
-            <span>{task.postedBy?.name || 'Unknown'}</span>
+        <div className="flex items-center justify-between text-xs text-brand-text-muted border-t border-brand-border pt-4 mt-auto">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center">
+              <User size={12} className="text-brand-text-secondary" />
+            </div>
+            <span className="text-brand-text-secondary font-medium">{task.postedBy?.name || 'Unknown'}</span>
           </div>
           <div className="flex items-center space-x-1">
             {isOverdue ? (
-              <span className="text-red-500 flex items-center space-x-1">
+              <span className="text-red-500 flex items-center space-x-1 font-medium">
                 <Clock size={14} />
                 <span>Overdue</span>
               </span>
+            ) : isUrgent ? (
+              <span className="text-brand-orange flex items-center space-x-1 font-medium">
+                <Clock size={14} />
+                <span>{daysUntil === 0 ? 'Due today' : `Due in ${daysUntil}d`}</span>
+              </span>
             ) : (
-              <>
+              <div className="flex items-center space-x-1">
                 <Calendar size={14} />
                 <span>{formatDate(task.deadline)}</span>
-              </>
+              </div>
             )}
           </div>
         </div>

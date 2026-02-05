@@ -174,70 +174,80 @@ const TaskDetails = () => {
   const taskOverdue = isOverdue(task.deadline);
 
   return (
-    <div className="page-container animate-fade-in">
+    <div className="wrapper py-8 animate-fade-in text-white">
       {/* Back button */}
       <Link
         to="/browse"
-        className="inline-flex items-center space-x-2 text-text-secondary dark:text-text-dark-secondary hover:text-mits-blue mb-6"
+        className="inline-flex items-center space-x-2 text-brand-text-secondary hover:text-brand-orange mb-8 transition-colors group"
       >
-        <ArrowLeft size={20} />
-        <span>Back to Browse</span>
+        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-bold uppercase tracking-widest">Back to Browse</span>
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Task header */}
-          <div className="card p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+          <div className="card bg-brand-surface/40 border-brand-border/50 p-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/5 blur-[60px] rounded-full group-hover:bg-brand-orange/10 transition-colors"></div>
+            
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-6 relative z-10">
               <div className="flex items-center space-x-3">
                 <span
-                  className={
-                    task.posterRole === 'teacher' ? 'badge-teacher' : 'badge-student'
-                  }
+                  className={`text-[10px] font-bold uppercase border px-2 py-1 rounded-md ${
+                    task.posterRole === 'teacher'
+                      ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                      : 'bg-brand-orange/10 text-brand-orange border-brand-orange/20'
+                  }`}
                 >
-                  {task.posterRole === 'teacher' ? 'Teacher' : 'Student'}
+                  {task.posterRole === 'teacher' ? 'Teacher Posted' : 'Student Posted'}
                 </span>
-                <span className={getStatusColor(task.status)}>
+                <span className={`text-[10px] font-bold uppercase border px-2 py-1 rounded-md ${getStatusColor(task.status)}`}>
                   {getStatusLabel(task.status)}
                 </span>
               </div>
               {task.creditPoints > 0 && (
-                <div className="flex items-center space-x-2 text-mits-orange font-semibold text-lg">
-                  <Award size={24} />
-                  <span>{task.creditPoints} credits</span>
+                <div className="flex items-center space-x-2 text-brand-orange">
+                  <Award size={22} className="shadow-glow" />
+                  <span className="font-black text-2xl tracking-tighter">{task.creditPoints} <span className="text-xs uppercase tracking-normal">Credits</span></span>
                 </div>
               )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-bold text-text-primary dark:text-text-dark mb-4">
+            <h1 className="text-4xl font-black text-white mb-6 leading-tight tracking-tight">
               {task.title}
             </h1>
 
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-8">
               {task.skills?.map((skill, index) => (
-                <span key={index} className="skill-tag">
+                <span key={index} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-brand-text-secondary hover:border-brand-orange/50 transition-colors">
                   {skill}
                 </span>
               ))}
             </div>
 
-            <p className="text-text-secondary dark:text-text-dark-secondary whitespace-pre-wrap">
-              {task.description}
-            </p>
+            <div className="prose prose-invert max-w-none">
+              <p className="text-brand-text-secondary text-lg leading-relaxed whitespace-pre-wrap">
+                {task.description}
+              </p>
+            </div>
           </div>
 
           {/* Submission section */}
           {task.submission?.content && (
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark mb-4 flex items-center space-x-2">
-                <CheckCircle className="text-mits-green" size={20} />
-                <span>Submission</span>
+            <div className="card bg-brand-surface/40 border-brand-border/50 p-8">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
+                   <CheckCircle size={20} />
+                </div>
+                <span>Work <span className="text-gradient">Submission</span></span>
               </h2>
-              <p className="text-text-secondary dark:text-text-dark-secondary whitespace-pre-wrap mb-2">
-                {task.submission.content}
-              </p>
-              <p className="text-sm text-text-secondary dark:text-text-dark-secondary">
+              <div className="bg-brand-dark/50 border border-brand-border p-6 rounded-2xl mb-4">
+                <p className="text-brand-text-secondary whitespace-pre-wrap leading-relaxed">
+                  {task.submission.content}
+                </p>
+              </div>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-text-muted">
                 Submitted on {formatDateTime(task.submission.submittedAt)}
               </p>
             </div>
@@ -245,43 +255,52 @@ const TaskDetails = () => {
 
           {/* Review section */}
           {task.review?.reviewedAt && (
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark mb-4 flex items-center space-x-2">
-                {task.review.satisfied ? (
-                  <CheckCircle className="text-mits-green" size={20} />
-                ) : (
-                  <XCircle className="text-red-500" size={20} />
-                )}
-                <span>Review</span>
+            <div className="card bg-brand-surface/40 border-brand-border/50 p-8">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  task.review.satisfied ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+                }`}>
+                   {task.review.satisfied ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                </div>
+                <span>Task <span className="text-gradient">Review</span></span>
               </h2>
-              <div className="space-y-2">
-                <p
-                  className={`font-medium ${
-                    task.review.satisfied ? 'text-mits-green' : 'text-red-500'
-                  }`}
-                >
-                  {task.review.satisfied ? 'Satisfied' : 'Not Satisfied'}
-                </p>
-                {task.review.feedback && (
-                  <p className="text-text-secondary dark:text-text-dark-secondary">
-                    {task.review.feedback}
+              
+              <div className={`p-1 rounded-2xl border ${
+                task.review.satisfied ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'
+              }`}>
+                <div className="bg-brand-dark/40 p-6 rounded-xl">
+                  <div className="flex items-center space-x-2 mb-4">
+                     <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                       task.review.satisfied ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                     }`}>
+                        {task.review.satisfied ? 'Satisfied' : 'Revision Required'}
+                     </span>
+                  </div>
+                  {task.review.feedback && (
+                    <p className="text-brand-text-secondary leading-relaxed mb-4 italic">
+                      "{task.review.feedback}"
+                    </p>
+                  )}
+                  <p className="text-xs font-bold uppercase tracking-widest text-brand-text-muted">
+                    Reviewed on {formatDateTime(task.review.reviewedAt)}
                   </p>
-                )}
-                <p className="text-sm text-text-secondary dark:text-text-dark-secondary">
-                  Reviewed on {formatDateTime(task.review.reviewedAt)}
-                </p>
+                </div>
               </div>
             </div>
           )}
 
           {/* Chat section */}
           {showChat && (
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark mb-4 flex items-center space-x-2">
-                <MessageSquare className="text-mits-blue" size={20} />
-                <span>Chat</span>
+            <div className="card bg-brand-surface/40 border-brand-border/50 p-8">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center text-brand-orange">
+                   <MessageSquare size={20} />
+                </div>
+                <span>Collaboration <span className="text-gradient">Hub</span></span>
               </h2>
-              <ChatWindow taskId={task._id} chatRoomId={task.chatRoom?._id || task.chatRoom} />
+              <div className="rounded-2xl overflow-hidden border border-brand-border bg-brand-dark/50">
+                <ChatWindow taskId={task._id} chatRoomId={task.chatRoom?._id || task.chatRoom} />
+              </div>
             </div>
           )}
         </div>
@@ -289,27 +308,27 @@ const TaskDetails = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Posted by */}
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-3">
+          <div className="card bg-brand-card/60 border-brand-border/50 p-6">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted mb-4">
               Posted by
             </h3>
             <Link
               to={`/user/${task.postedBy?._id}`}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-4 group"
             >
-              <Avatar name={task.postedBy?.name} size="large" />
+              <Avatar name={task.postedBy?.name} size="large" src={task.postedBy?.avatar} className="ring-2 ring-white/5 group-hover:ring-brand-orange/50 transition-all" />
               <div>
-                <p className="font-medium text-text-primary dark:text-text-dark">
+                <p className="font-bold text-white group-hover:text-brand-orange transition-colors">
                   {task.postedBy?.name}
                 </p>
                 <span
-                  className={
+                  className={`text-[10px] font-bold uppercase tracking-widest ${
                     task.postedBy?.role === 'teacher'
-                      ? 'badge-teacher'
-                      : 'badge-student'
-                  }
+                      ? 'text-blue-400'
+                      : 'text-brand-orange'
+                  }`}
                 >
-                  {task.postedBy?.role === 'teacher' ? 'Teacher' : 'Student'}
+                  {task.postedBy?.role === 'teacher' ? 'Instructor' : 'Peer Student'}
                 </span>
               </div>
             </Link>
@@ -317,118 +336,116 @@ const TaskDetails = () => {
 
           {/* Taken by */}
           {task.takenBy && (
-            <div className="card p-6">
-              <h3 className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-3">
-                Taken by
+            <div className="card bg-brand-card/60 border-brand-border/50 p-6">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted mb-4">
+                Working on this
               </h3>
               <Link
                 to={`/user/${task.takenBy?._id}`}
-                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                className="flex items-center space-x-4 group"
               >
-                <Avatar name={task.takenBy?.name} size="large" />
+                <Avatar name={task.takenBy?.name} size="large" src={task.takenBy?.avatar} className="ring-2 ring-white/5 group-hover:ring-brand-orange/50 transition-all" />
                 <div>
-                  <p className="font-medium text-text-primary dark:text-text-dark">
+                  <p className="font-bold text-white group-hover:text-brand-orange transition-colors">
                     {task.takenBy?.name}
                   </p>
-                  <span className="badge-student">Student</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-orange">Student</span>
                 </div>
               </Link>
             </div>
           )}
 
-          {/* Deadline */}
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-3">
-              Deadline
-            </h3>
-            <div className="flex items-center space-x-2">
-              <Calendar
-                className={taskOverdue ? 'text-red-500' : 'text-mits-blue'}
-                size={20}
-              />
-              <span
-                className={`font-medium ${
-                  taskOverdue
-                    ? 'text-red-500'
-                    : 'text-text-primary dark:text-text-dark'
-                }`}
-              >
-                {formatDate(task.deadline)}
-              </span>
+          {/* Timeline & Stats Card */}
+          <div className="card bg-brand-card/60 border-brand-border/50 p-6 space-y-6">
+            <div>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted mb-4">
+                Deadline
+              </h3>
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${taskOverdue ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-400'}`}>
+                  <Calendar size={18} />
+                </div>
+                <div>
+                  <p className={`font-bold ${taskOverdue ? 'text-red-500' : 'text-white'}`}>
+                    {formatDate(task.deadline)}
+                  </p>
+                  {!taskOverdue && daysUntil !== null && (
+                    <p className="text-xs text-brand-text-muted font-bold">
+                      {daysUntil === 0
+                        ? 'Due today'
+                        : daysUntil === 1
+                        ? 'Due tomorrow'
+                        : `${daysUntil} days left`}
+                    </p>
+                  )}
+                  {taskOverdue && (
+                    <p className="text-xs text-red-500/80 font-bold flex items-center space-x-1">
+                      <AlertCircle size={12} />
+                      <span>Expired</span>
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-            {!taskOverdue && daysUntil !== null && (
-              <p className="text-sm text-text-secondary dark:text-text-dark-secondary mt-1">
-                {daysUntil === 0
-                  ? 'Due today'
-                  : daysUntil === 1
-                  ? 'Due tomorrow'
-                  : `${daysUntil} days left`}
-              </p>
-            )}
-            {taskOverdue && (
-              <p className="text-sm text-red-500 mt-1 flex items-center space-x-1">
-                <AlertCircle size={14} />
-                <span>Overdue</span>
-              </p>
-            )}
-          </div>
 
-          {/* Created */}
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-3">
-              Created
-            </h3>
-            <div className="flex items-center space-x-2">
-              <Clock className="text-text-secondary" size={20} />
-              <span className="text-text-primary dark:text-text-dark">
-                {formatDate(task.createdAt)}
-              </span>
+            <div>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted mb-4">
+                Project Created
+              </h3>
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-lg bg-white/5 text-brand-text-muted">
+                   <Clock size={18} />
+                </div>
+                <p className="font-bold text-brand-text-secondary text-sm">
+                  {formatDate(task.createdAt)}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="card p-6 space-y-3">
+          <div className="card bg-brand-card p-6 space-y-4 border border-brand-orange/20 shadow-[0_0_20px_rgba(249,115,22,0.05)]">
             {canTakeTask && (
               <button
                 onClick={handleTakeTask}
                 disabled={actionLoading}
-                className="btn-primary w-full"
+                className="btn-primary w-full py-4 shadow-glow"
               >
-                {actionLoading ? <ButtonLoading /> : 'Take This Task'}
+                {actionLoading ? <ButtonLoading /> : 'Accept Mission'}
               </button>
             )}
 
             {canSubmit && (
               <button
                 onClick={() => setShowSubmitModal(true)}
-                className="btn-success w-full"
+                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)]"
               >
-                Submit Work
+                Submit Mission
               </button>
             )}
 
             {canReview && (
               <button
                 onClick={() => setShowReviewModal(true)}
-                className="btn-primary w-full"
+                className="btn-primary w-full py-4 shadow-glow"
               >
-                Review Submission
+                Review Work
               </button>
             )}
 
             {canReassign && (
               <button
                 onClick={() => setShowReassignModal(true)}
-                className="btn-outline w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                className="w-full py-4 bg-white/5 border border-red-500/30 text-red-500 hover:bg-red-500/10 text-xs font-black uppercase tracking-widest rounded-xl transition-all mt-4 flex items-center justify-center space-x-2"
               >
-                <RotateCcw size={18} className="mr-2" />
-                Reassign Task
+                <RotateCcw size={14} />
+                <span>Reassign Project</span>
               </button>
             )}
 
             {!isAuthenticated && (
-              <Link to="/login" className="btn-primary w-full block text-center">
-                Login to Take Task
+              <Link to="/login" className="btn-primary w-full py-4 shadow-glow block text-center">
+                Login to Participate
               </Link>
             )}
           </div>
@@ -442,30 +459,30 @@ const TaskDetails = () => {
         title="Submit Your Work"
         size="large"
       >
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <label className="label">Describe your work</label>
+            <label className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-2 block">Describe your findings</label>
             <textarea
               value={submitContent}
               onChange={(e) => setSubmitContent(e.target.value)}
               rows={6}
-              className="input"
-              placeholder="Describe what you've done, any links to your work, notes for the reviewer..."
+              className="w-full bg-brand-dark border border-brand-border rounded-xl p-4 text-white focus:border-brand-orange transition-colors outline-none font-medium"
+              placeholder="Provide a detailed summary of your work, links to files, or any final notes..."
             />
           </div>
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowSubmitModal(false)}
-              className="btn-ghost"
+              className="px-6 py-3 text-brand-text-muted hover:text-white font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmitTask}
               disabled={actionLoading}
-              className="btn-success"
+              className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)]"
             >
-              {actionLoading ? <ButtonLoading /> : 'Submit Work'}
+              {actionLoading ? <ButtonLoading /> : 'Complete Submission'}
             </button>
           </div>
         </div>
@@ -478,83 +495,87 @@ const TaskDetails = () => {
         title="Review Submission"
         size="large"
       >
-        <div className="space-y-4">
+        <div className="space-y-8">
           <div>
-            <label className="label">Are you satisfied with this work?</label>
+            <label className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-4 block text-center">Current Status</label>
             <div className="flex space-x-4">
               <button
                 onClick={() =>
                   setReviewData((prev) => ({ ...prev, satisfied: true }))
                 }
-                className={`flex-1 py-3 rounded-lg border-2 transition-all ${
+                className={`flex-1 p-6 rounded-2xl border-2 transition-all flex flex-col items-center group ${
                   reviewData.satisfied
-                    ? 'border-mits-green bg-mits-green/10 text-mits-green'
-                    : 'border-gray-200 dark:border-gray-700'
+                    ? 'border-green-500 bg-green-500/10 text-green-400'
+                    : 'border-white/5 bg-white/5 text-brand-text-muted'
                 }`}
               >
-                <CheckCircle className="mx-auto mb-1" size={24} />
-                <span>Satisfied</span>
+                <CheckCircle className={`mb-2 transition-transform ${reviewData.satisfied ? 'scale-110' : ''}`} size={32} />
+                <span className="font-black uppercase tracking-widest text-xs">Mission Clear</span>
               </button>
               <button
                 onClick={() =>
                   setReviewData((prev) => ({ ...prev, satisfied: false }))
                 }
-                className={`flex-1 py-3 rounded-lg border-2 transition-all ${
+                className={`flex-1 p-6 rounded-2xl border-2 transition-all flex flex-col items-center group ${
                   !reviewData.satisfied
-                    ? 'border-red-500 bg-red-500/10 text-red-500'
-                    : 'border-gray-200 dark:border-gray-700'
+                    ? 'border-red-500 bg-red-500/10 text-red-400'
+                    : 'border-white/5 bg-white/5 text-brand-text-muted'
                 }`}
               >
-                <XCircle className="mx-auto mb-1" size={24} />
-                <span>Not Satisfied</span>
+                <XCircle className={`mb-2 transition-transform ${!reviewData.satisfied ? 'scale-110' : ''}`} size={32} />
+                <span className="font-black uppercase tracking-widest text-xs">Request Revision</span>
               </button>
             </div>
           </div>
 
           {reviewData.satisfied && (
-            <div>
-              <label className="label">Rate the work</label>
-              <StarRating
-                rating={reviewData.rating}
-                onRate={(rating) =>
-                  setReviewData((prev) => ({ ...prev, rating }))
-                }
-                size="large"
-              />
+            <div className="animate-fade-in">
+              <label className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-4 block text-center">Performance Rating</label>
+              <div className="flex justify-center">
+                <StarRating
+                  rating={reviewData.rating}
+                  onRate={(rating) =>
+                    setReviewData((prev) => ({ ...prev, rating }))
+                  }
+                  size="large"
+                />
+              </div>
             </div>
           )}
 
           <div>
-            <label className="label">Feedback</label>
+            <label className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-2 block">Feedback & Notes</label>
             <textarea
               value={reviewData.feedback}
               onChange={(e) =>
                 setReviewData((prev) => ({ ...prev, feedback: e.target.value }))
               }
               rows={4}
-              className="input"
-              placeholder="Provide feedback for the student..."
+              className="w-full bg-brand-dark border border-brand-border rounded-xl p-4 text-white focus:border-brand-orange transition-colors outline-none font-medium"
+              placeholder="Provide constructive feedback for the student..."
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowReviewModal(false)}
-              className="btn-ghost"
+              className="px-6 py-3 text-brand-text-muted hover:text-white font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleReviewTask}
               disabled={actionLoading}
-              className={reviewData.satisfied ? 'btn-success' : 'btn-primary'}
+              className={`px-8 py-3 font-black uppercase tracking-widest rounded-xl transition-all shadow-glow ${
+                reviewData.satisfied ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-brand-orange hover:bg-orange-600 text-white'
+              }`}
             >
               {actionLoading ? (
                 <ButtonLoading />
               ) : reviewData.satisfied ? (
-                'Complete & Award Credits'
+                'Finalize & Pay'
               ) : (
-                'Submit Review'
+                'Send Revision'
               )}
             </button>
           </div>
@@ -565,36 +586,38 @@ const TaskDetails = () => {
       <Modal
         isOpen={showReassignModal}
         onClose={() => setShowReassignModal(false)}
-        title="Reassign Task"
+        title="Reassign Project"
       >
-        <div className="space-y-4">
-          <Alert
-            type="warning"
-            message="This will remove the current assignee and make the task available again."
-          />
+        <div className="space-y-6">
+          <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-start space-x-3">
+             <AlertCircle className="text-red-500 mt-1 flex-shrink-0" size={18} />
+             <p className="text-sm text-red-200 leading-relaxed font-medium">
+                This will terminate the current partnership and return the mission to the public board.
+             </p>
+          </div>
           <div>
-            <label className="label">Reason for reassignment</label>
+            <label className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-2 block">Reason for Termination</label>
             <textarea
               value={reassignReason}
               onChange={(e) => setReassignReason(e.target.value)}
               rows={3}
-              className="input"
-              placeholder="Why are you reassigning this task?"
+              className="w-full bg-brand-dark border border-brand-border rounded-xl p-4 text-white focus:border-brand-orange transition-colors outline-none font-medium"
+              placeholder="Briefly explain why this needs reassignment..."
             />
           </div>
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowReassignModal(false)}
-              className="btn-ghost"
+              className="px-6 py-3 text-brand-text-muted hover:text-white font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleReassignTask}
               disabled={actionLoading}
-              className="btn-primary bg-red-500 hover:bg-red-600"
+              className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)]"
             >
-              {actionLoading ? <ButtonLoading /> : 'Reassign Task'}
+              {actionLoading ? <ButtonLoading /> : 'Confirm Termination'}
             </button>
           </div>
         </div>

@@ -115,216 +115,237 @@ const PostTask = () => {
   };
 
   return (
-    <div className="page-container animate-fade-in">
-      <div className="max-w-2xl mx-auto">
+    <div className="wrapper py-8 animate-fade-in text-white">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 text-text-secondary dark:text-text-dark-secondary hover:text-mits-blue"
+            className="inline-flex items-center space-x-2 text-brand-text-secondary hover:text-brand-orange transition-colors group"
           >
-            <ArrowLeft size={20} />
-            <span>Back</span>
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-bold uppercase tracking-widest">Back</span>
           </button>
-          <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark flex items-center space-x-2">
-            <PlusCircle className="text-mits-blue" />
-            <span>Post a Task</span>
+          
+          <h1 className="text-4xl font-black tracking-tight text-white flex items-center space-x-3">
+             <div className="w-12 h-12 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange shadow-glow">
+                <PlusCircle size={28} />
+             </div>
+             <span>Create <span className="text-gradient">Mission</span></span>
           </h1>
-          <div className="w-20" />
+          <div className="hidden md:block w-20" />
         </div>
 
         {/* Info alert for students */}
         {!isTeacher && (
-          <Alert
-            type="info"
-            message="As a student, you can post tasks for peer collaboration. Note: Student tasks don't award credit points."
-            className="mb-6"
-          />
+          <div className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-2xl flex items-start space-x-4 mb-8">
+             <Info className="text-blue-400 mt-1 flex-shrink-0" size={24} />
+             <p className="text-brand-text-secondary leading-relaxed">
+                As a student, you can post missions for peer collaboration. 
+                <span className="block mt-1 text-sm font-bold text-blue-400/80 uppercase tracking-widest">Note: Student tasks do not award credit points.</span>
+             </p>
+          </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="card p-6 space-y-6">
-          {/* Title */}
-          <div>
-            <label htmlFor="title" className="label">
-              Task Title *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className={`input ${errors.title ? 'input-error' : ''}`}
-              placeholder="e.g., Build a React Dashboard Component"
-              maxLength={100}
-            />
-            {errors.title && (
-              <p className="mt-1 text-sm text-red-500">{errors.title}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="label">
-              Description *
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={6}
-              className={`input ${errors.description ? 'input-error' : ''}`}
-              placeholder="Describe the task in detail. Include requirements, expected deliverables, and any resources that might help..."
-              maxLength={2000}
-            />
-            <div className="flex justify-between mt-1">
-              {errors.description ? (
-                <p className="text-sm text-red-500">{errors.description}</p>
-              ) : (
-                <span />
-              )}
-              <span className="text-xs text-text-secondary dark:text-text-dark-secondary">
-                {formData.description.length}/2000
-              </span>
-            </div>
-          </div>
-
-          {/* Skills */}
-          <div>
-            <label className="label">Required Skills * (max 5)</label>
-
-            {/* Current skills */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {formData.skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="skill-tag flex items-center space-x-1"
-                >
-                  <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill)}
-                    className="hover:text-red-500"
-                  >
-                    <X size={14} />
-                  </button>
-                </span>
-              ))}
-            </div>
-
-            {/* Add skill */}
-            <div className="flex space-x-2">
-              <select
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-                className="input flex-1"
-                disabled={formData.skills.length >= 5}
-              >
-                <option value="">Select a skill</option>
-                {SKILLS.filter((s) => !formData.skills.includes(s)).map((skill) => (
-                  <option key={skill} value={skill}>
-                    {skill}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => handleAddSkill(newSkill)}
-                disabled={!newSkill || formData.skills.length >= 5}
-                className="btn-outline px-4"
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-            {errors.skills && (
-              <p className="mt-1 text-sm text-red-500">{errors.skills}</p>
-            )}
-          </div>
-
-          {/* Credit Points (Teachers only) */}
-          {isTeacher && (
-            <div>
-              <label htmlFor="creditPoints" className="label">
-                Credit Points *
+        <form onSubmit={handleSubmit} className="card bg-brand-surface/20 border-brand-border/50 p-8 space-y-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Title */}
+            <div className="md:col-span-2">
+              <label htmlFor="title" className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-3 block">
+                Mission Title *
               </label>
               <input
-                type="number"
-                id="creditPoints"
-                name="creditPoints"
-                value={formData.creditPoints}
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-                min={1}
-                max={100}
-                className={`input ${errors.creditPoints ? 'input-error' : ''}`}
+                className={`w-full bg-brand-dark border ${errors.title ? 'border-red-500' : 'border-brand-border'} rounded-xl p-4 text-white focus:border-brand-orange transition-all outline-none font-bold text-lg placeholder:text-brand-text-muted/50`}
+                placeholder="e.g., Design a Neural Network Architecture"
+                maxLength={100}
               />
-              <p className="mt-1 text-sm text-text-secondary dark:text-text-dark-secondary flex items-center space-x-1">
-                <Info size={14} />
-                <span>Credits awarded to student upon task completion</span>
-              </p>
-              {errors.creditPoints && (
-                <p className="mt-1 text-sm text-red-500">{errors.creditPoints}</p>
+              {errors.title && (
+                <p className="mt-2 text-xs font-bold text-red-500 uppercase tracking-widest">{errors.title}</p>
               )}
             </div>
-          )}
 
-          {/* Deadline */}
-          <div>
-            <label htmlFor="deadline" className="label">
-              Deadline *
-            </label>
-            <input
-              type="date"
-              id="deadline"
-              name="deadline"
-              value={formData.deadline}
-              onChange={handleChange}
-              min={getMinDate()}
-              className={`input ${errors.deadline ? 'input-error' : ''}`}
-            />
-            {errors.deadline && (
-              <p className="mt-1 text-sm text-red-500">{errors.deadline}</p>
+            {/* Description */}
+            <div className="md:col-span-2">
+              <label htmlFor="description" className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-3 block">
+                Mission Brief *
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={6}
+                className={`w-full bg-brand-dark border ${errors.description ? 'border-red-500' : 'border-brand-border'} rounded-xl p-4 text-white focus:border-brand-orange transition-all outline-none font-medium leading-relaxed placeholder:text-brand-text-muted/50`}
+                placeholder="Provide details about the task, requirements, and expected deliverables..."
+                maxLength={2000}
+              />
+              <div className="flex justify-between mt-2">
+                {errors.description ? (
+                  <p className="text-xs font-bold text-red-500 uppercase tracking-widest">{errors.description}</p>
+                ) : (
+                  <span />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted">
+                  {formData.description.length}/2000
+                </span>
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div className="md:col-span-2">
+              <label className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-4 block">Required Intel * (max 5)</label>
+
+              {/* Current skills */}
+              <div className="flex flex-wrap gap-3 mb-4">
+                {formData.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-4 py-2 bg-brand-orange/10 border border-brand-orange/30 text-brand-orange rounded-xl text-xs font-black uppercase tracking-widest flex items-center space-x-2 animate-fade-in"
+                  >
+                    <span>{skill}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="hover:text-white transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              {/* Add skill */}
+              <div className="flex space-x-3">
+                <select
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  className="flex-1 bg-brand-dark border border-brand-border rounded-xl p-4 text-white focus:border-brand-orange transition-all outline-none font-bold text-sm"
+                  disabled={formData.skills.length >= 5}
+                >
+                  <option value="" className="bg-brand-dark">Protocol Selection...</option>
+                  {SKILLS.filter((s) => !formData.skills.includes(s)).map((skill) => (
+                    <option key={skill} value={skill} className="bg-brand-dark">
+                      {skill}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => handleAddSkill(newSkill)}
+                  disabled={!newSkill || formData.skills.length >= 5}
+                  className="w-14 h-14 bg-white/5 border border-brand-border/50 text-white rounded-xl flex items-center justify-center hover:bg-brand-orange hover:border-brand-orange transition-all disabled:opacity-30"
+                >
+                  <Plus size={24} />
+                </button>
+              </div>
+              {errors.skills && (
+                <p className="mt-2 text-xs font-bold text-red-500 uppercase tracking-widest">{errors.skills}</p>
+              )}
+            </div>
+
+            {/* Credit Points (Teachers only) */}
+            {isTeacher && (
+              <div>
+                <label htmlFor="creditPoints" className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-3 block">
+                  Reward Points *
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="creditPoints"
+                    name="creditPoints"
+                    value={formData.creditPoints}
+                    onChange={handleChange}
+                    min={1}
+                    max={100}
+                    className={`w-full bg-brand-dark border ${errors.creditPoints ? 'border-red-500' : 'border-brand-border'} rounded-xl p-4 pl-12 text-white focus:border-brand-orange transition-all outline-none font-black text-xl`}
+                  />
+                  <Award size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-orange shadow-glow" />
+                </div>
+                <div className="mt-2 flex items-center space-x-2 opacity-60">
+                  <Info size={12} className="text-brand-orange" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted">Credits awarded upon mission success</span>
+                </div>
+                {errors.creditPoints && (
+                  <p className="mt-2 text-xs font-bold text-red-500 uppercase tracking-widest">{errors.creditPoints}</p>
+                )}
+              </div>
             )}
+
+            {/* Deadline */}
+            <div className={isTeacher ? '' : 'md:col-span-2'}>
+              <label htmlFor="deadline" className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-3 block">
+                Mission Deadline *
+              </label>
+              <div className="relative">
+                <input
+                  type="date"
+                  id="deadline"
+                  name="deadline"
+                  value={formData.deadline}
+                  onChange={handleChange}
+                  min={getMinDate()}
+                  className={`w-full bg-brand-dark border ${errors.deadline ? 'border-red-500' : 'border-brand-border'} rounded-xl p-4 pl-12 text-white focus:border-brand-orange transition-all outline-none font-black text-sm uppercase tracking-widest`}
+                />
+                <PlusCircle size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text-muted opacity-50" />
+              </div>
+              {errors.deadline && (
+                <p className="mt-2 text-xs font-bold text-red-500 uppercase tracking-widest">{errors.deadline}</p>
+              )}
+            </div>
           </div>
 
           {/* Summary */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-            <h3 className="font-medium text-text-primary dark:text-text-dark mb-2">
-              Task Summary
-            </h3>
-            <ul className="text-sm text-text-secondary dark:text-text-dark-secondary space-y-1">
-              <li>
-                • Posted as: <strong>{user?.role === 'teacher' ? 'Teacher' : 'Student'}</strong>
-              </li>
-              <li>
-                • Credit points: <strong>{isTeacher ? formData.creditPoints : 0}</strong>
-              </li>
-              <li>
-                • Skills required: <strong>{formData.skills.length || 0}</strong>
-              </li>
-            </ul>
-          </div>
+          <div className="bg-brand-surface border border-brand-border rounded-2xl p-6 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-brand-orange/5 group-hover:bg-brand-orange/10 transition-colors"></div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <h3 className="text-xs font-black text-brand-orange uppercase tracking-[.25em] mb-4">Mission Parameters</h3>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                   <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 rounded-full bg-brand-orange"></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted">Protocol:</span>
+                      <span className="text-xs font-bold text-white uppercase tracking-widest">{user?.role}</span>
+                   </div>
+                   <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 rounded-full bg-brand-orange"></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted">Reward:</span>
+                      <span className="text-xs font-bold text-white uppercase tracking-widest">{isTeacher ? formData.creditPoints : 0} PTS</span>
+                   </div>
+                   <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 rounded-full bg-brand-orange"></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted">Specialization:</span>
+                      <span className="text-xs font-bold text-white uppercase tracking-widest">{formData.skills.length} TAGS</span>
+                   </div>
+                </div>
+              </div>
 
-          {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="btn-ghost"
-            >
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? (
-                <ButtonLoading />
-              ) : (
-                <>
-                  <PlusCircle size={18} className="mr-2" />
-                  Post Task
-                </>
-              )}
-            </button>
+              <div className="flex md:flex-col items-center gap-3">
+                 <button
+                   type="button"
+                   onClick={() => navigate(-1)}
+                   className="px-8 py-3 text-brand-text-muted hover:text-white font-bold transition-colors"
+                 >
+                   Abort
+                 </button>
+                 <button type="submit" disabled={loading} className="btn-primary px-10 py-3 shadow-glow">
+                   {loading ? (
+                     <ButtonLoading />
+                   ) : (
+                     <div className="flex items-center space-x-2">
+                        <PlusCircle size={18} />
+                        <span>Deploy Mission</span>
+                     </div>
+                   )}
+                 </button>
+              </div>
+            </div>
           </div>
         </form>
       </div>

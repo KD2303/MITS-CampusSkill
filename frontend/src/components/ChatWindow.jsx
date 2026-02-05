@@ -143,36 +143,42 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-mits-blue animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-orange animate-spin" />
       </div>
     );
   }
 
   if (!chatRoom) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-text-secondary dark:text-text-dark-secondary">
-        <p>No chat available for this task.</p>
-        <p className="text-sm mt-2">Chat will be available once a student takes this task.</p>
+      <div className="flex flex-col items-center justify-center h-64 text-brand-text-muted bg-brand-surface/20 rounded-xl border border-dashed border-brand-border">
+        <MessageSquare size={48} className="mb-4 opacity-20" />
+        <p className="font-bold">Encrypted Channel Offline</p>
+        <p className="text-sm mt-2">Chat will activate once a student accepts this mission.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[500px] bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-[600px] bg-brand-dark/40 overflow-hidden">
       {/* Chat header */}
-      <div className="p-4 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 bg-brand-surface/80 backdrop-blur-md border-b border-brand-border relative z-10">
         <div className="flex items-center space-x-3">
           {chatRoom.participants
             ?.filter((p) => p._id !== user._id)
             .map((participant) => (
-              <div key={participant._id} className="flex items-center space-x-2">
-                <Avatar name={participant.name} size="small" />
+              <div key={participant._id} className="flex items-center space-x-3">
+                <div className="relative">
+                  <Avatar name={participant.name} src={participant.avatar} size="small" className="ring-2 ring-brand-orange/20" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-brand-dark"></div>
+                </div>
                 <div>
-                  <p className="font-medium text-text-primary dark:text-text-dark">
+                  <p className="font-bold text-white text-sm leading-none mb-1">
                     {participant.name}
                   </p>
-                  <span className={participant.role === 'teacher' ? 'badge-teacher' : 'badge-student'}>
-                    {participant.role === 'teacher' ? 'Teacher' : 'Student'}
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${
+                    participant.role === 'teacher' ? 'text-blue-400' : 'text-brand-orange'
+                  }`}>
+                    {participant.role === 'teacher' ? 'Instructor' : 'Field Agent'}
                   </span>
                 </div>
               </div>
@@ -181,7 +187,7 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-dots-pattern">
         {messages.map((message, index) => {
           const isOwnMessage = message.sender?._id === user._id || message.sender === user._id;
           const isSystemMessage = message.messageType === 'system';
@@ -189,7 +195,7 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
           if (isSystemMessage) {
             return (
               <div key={message._id || index} className="flex justify-center">
-                <span className="text-xs text-text-secondary dark:text-text-dark-secondary bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted bg-white/5 border border-white/5 px-4 py-1 rounded-full backdrop-blur-sm">
                   {message.content}
                 </span>
               </div>
@@ -201,29 +207,28 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
               key={message._id || index}
               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[80%]`}>
+              <div className={`flex ${isOwnMessage ? 'flex-row-reverse space-x-reverse' : 'flex-row'} items-end space-x-3 max-w-[85%]`}>
                 {!isOwnMessage && (
                   <Avatar
                     name={message.sender?.name || 'User'}
+                    src={message.sender?.avatar}
                     size="small"
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 mb-1"
                   />
                 )}
                 <div
-                  className={`rounded-lg px-4 py-2 ${
+                  className={`relative px-4 py-3 shadow-xl ${
                     isOwnMessage
-                      ? 'bg-mits-blue text-white rounded-br-none'
-                      : 'bg-white dark:bg-gray-800 text-text-primary dark:text-text-dark rounded-bl-none'
+                      ? 'bg-brand-orange text-white rounded-2xl rounded-br-none'
+                      : 'bg-brand-surface border border-brand-border text-white rounded-2xl rounded-bl-none'
                   }`}
                 >
-                  <p className="break-words">{message.content}</p>
-                  <p
-                    className={`text-xs mt-1 ${
-                      isOwnMessage ? 'text-blue-100' : 'text-text-secondary dark:text-text-dark-secondary'
-                    }`}
-                  >
-                    {formatTime(message.createdAt)}
-                  </p>
+                  <p className="text-sm font-medium leading-relaxed break-words">{message.content}</p>
+                  <div className="flex items-center justify-end space-x-1 mt-1 opacity-60">
+                    <span className="text-[9px] font-bold uppercase tracking-tighter">
+                      {formatTime(message.createdAt)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -232,9 +237,13 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
 
         {/* Typing indicator */}
         {typingUser && (
-          <div className="flex items-center space-x-2 text-text-secondary dark:text-text-dark-secondary">
-            <Avatar name={typingUser.name} size="small" />
-            <span className="text-sm">{typingUser.name} is typing...</span>
+          <div className="flex items-center space-x-3 text-brand-text-muted animate-pulse">
+            <div className="flex space-x-1">
+               <div className="w-1 h-1 bg-brand-orange rounded-full animate-bounce"></div>
+               <div className="w-1 h-1 bg-brand-orange rounded-full animate-bounce delay-100"></div>
+               <div className="w-1 h-1 bg-brand-orange rounded-full animate-bounce delay-200"></div>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest">{typingUser.name} is drafting...</span>
           </div>
         )}
 
@@ -245,9 +254,9 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
       {chatRoom.isActive !== false && (
         <form
           onSubmit={handleSendMessage}
-          className="p-4 bg-surface-light dark:bg-surface-dark border-t border-gray-200 dark:border-gray-700"
+          className="p-4 bg-brand-surface/90 border-t border-brand-border backdrop-blur-md"
         >
-          <div className="flex space-x-2">
+          <div className="flex space-x-3">
             <input
               type="text"
               value={newMessage}
@@ -255,14 +264,18 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
                 setNewMessage(e.target.value);
                 handleTyping();
               }}
-              placeholder="Type a message..."
-              className="input flex-1"
+              placeholder="Send an encrypted message..."
+              className="flex-1 bg-brand-dark border border-brand-border p-3 rounded-xl text-sm text-white focus:border-brand-orange outline-none transition-all placeholder:text-brand-text-muted font-medium"
               disabled={sending}
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="btn-primary px-4"
+              className={`p-3 rounded-xl transition-all flex items-center justify-center ${
+                !newMessage.trim() || sending 
+                  ? 'bg-white/5 text-brand-text-muted' 
+                  : 'bg-brand-orange text-white shadow-glow'
+              }`}
             >
               {sending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -275,8 +288,8 @@ const ChatWindow = ({ taskId, chatRoomId }) => {
       )}
 
       {chatRoom.isActive === false && (
-        <div className="p-4 bg-gray-100 dark:bg-gray-800 text-center text-text-secondary dark:text-text-dark-secondary">
-          This chat is no longer active
+        <div className="p-6 bg-brand-surface/50 border-t border-brand-border text-center text-red-400 font-black uppercase tracking-widest text-xs backdrop-blur-sm">
+          Channel terminated by task controller
         </div>
       )}
     </div>

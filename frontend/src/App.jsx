@@ -50,9 +50,9 @@ const PublicRoute = ({ children }) => {
 // Layout component
 const Layout = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-background dark:bg-background-dark transition-colors">
+    <div className="flex flex-col min-h-screen bg-brand-dark transition-colors">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-20 lg:pt-24">{children}</main>
       <Footer />
     </div>
   );
