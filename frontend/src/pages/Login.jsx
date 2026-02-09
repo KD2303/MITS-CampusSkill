@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import { ButtonLoading } from '../components/Loading';
+import { isAllowedEmailDomain } from '../utils/helpers';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,6 +37,8 @@ const Login = () => {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
+    } else if (!isAllowedEmailDomain(formData.email)) {
+      newErrors.email = 'Only @mitsgwalior.in (Faculty) and @mitsgwl.ac.in (Student) emails are allowed';
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';

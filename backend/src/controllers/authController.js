@@ -2,11 +2,32 @@ import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendTokenResponse } from '../utils/tokenUtils.js';
 
+// Allowed email domains and their corresponding roles
+const DOMAIN_ROLE_MAP = {
+  'mitsgwalior.in': 'teacher',
+  'mitsgwl.ac.in': 'student',
+};
+
+const getRoleFromEmail = (email) => {
+  if (!email || !email.includes('@')) return null;
+  const domain = email.split('@').pop().toLowerCase();
+  return DOMAIN_ROLE_MAP[domain] || null;
+};
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role, skills } = req.body;
+  const { name, email, password, skills } = req.body;
+
+  // Validate email domain and derive role
+  const role = getRoleFromEmail(email);
+  if (!role) {
+    return res.status(400).json({
+      success: false,
+      message: 'Only @mitsgwalior.in (Faculty) and @mitsgwl.ac.in (Student) email addresses are allowed',
+    });
+  }
 
   // Check if user exists
   const userExists = await User.findOne({ email });
@@ -15,14 +36,6 @@ export const register = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message: 'User already exists with this email',
-    });
-  }
-
-  // Validate role
-  if (!['teacher', 'student'].includes(role)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please select a valid role (teacher or student)',
     });
   }
 
@@ -49,6 +62,15 @@ export const login = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message: 'Please provide an email and password',
+    });
+  }
+
+  // Validate email domain
+  const derivedRole = getRoleFromEmail(email);
+  if (!derivedRole) {
+    return res.status(400).json({
+      success: false,
+      message: 'Only @mitsgwalior.in (Faculty) and @mitsgwl.ac.in (Student) email addresses are allowed',
     });
   }
 

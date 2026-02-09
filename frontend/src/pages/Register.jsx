@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Eye, EyeOff, Mail, Lock, User, UserPlus, GraduationCap, BookOpen } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, GraduationCap, BookOpen, ShieldCheck } from 'lucide-react';
 import { ButtonLoading } from '../components/Loading';
+import { getRoleFromEmail, isAllowedEmailDomain } from '../utils/helpers';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,8 +13,9 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: '',
   });
+
+  const detectedRole = useMemo(() => getRoleFromEmail(formData.email), [formData.email]);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -46,6 +48,8 @@ const Register = () => {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
+    } else if (!isAllowedEmailDomain(formData.email)) {
+      newErrors.email = 'Only @mitsgwalior.in (Faculty) and @mitsgwl.ac.in (Student) emails are allowed';
     }
 
     if (!formData.password) {
@@ -58,10 +62,6 @@ const Register = () => {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    if (!formData.role) {
-      newErrors.role = 'Please select a role';
     }
 
     setErrors(newErrors);
@@ -78,7 +78,7 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
+        role: detectedRole,
       });
       navigate('/dashboard');
     } catch (error) {
@@ -155,53 +155,19 @@ const Register = () => {
               {errors.email && (
                 <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.email}</p>
               )}
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-brand-text-secondary mb-3 ml-1">Select Your Role</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({ ...prev, role: 'teacher' }));
-                    if (errors.role) setErrors((prev) => ({ ...prev, role: '' }));
-                  }}
-                  className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
-                    formData.role === 'teacher'
-                      ? 'border-brand-orange bg-brand-orange/5 text-brand-orange'
-                      : 'border-brand-border bg-brand-surface/50 text-brand-text-muted hover:border-brand-orange/50 hover:text-brand-text-secondary'
-                  }`}
-                >
-                  <BookOpen
-                    className="w-6 h-6"
-                  />
-                  <p className="font-bold text-sm uppercase tracking-wider">
-                    Teacher
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({ ...prev, role: 'student' }));
-                    if (errors.role) setErrors((prev) => ({ ...prev, role: '' }));
-                  }}
-                  className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
-                    formData.role === 'student'
-                      ? 'border-brand-orange bg-brand-orange/5 text-brand-orange'
-                      : 'border-brand-border bg-brand-surface/50 text-brand-text-muted hover:border-brand-orange/50 hover:text-brand-text-secondary'
-                  }`}
-                >
-                  <GraduationCap
-                    className="w-6 h-6"
-                  />
-                  <p className="font-bold text-sm uppercase tracking-wider">
-                    Student
-                  </p>
-                </button>
-              </div>
-              {errors.role && (
-                <p className="mt-1.5 text-xs font-medium text-red-400 ml-1">{errors.role}</p>
+              {/* Auto-detected Role Badge */}
+              {formData.email && !errors.email && detectedRole && (
+                <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-orange/10 border border-brand-orange/20">
+                  <ShieldCheck className="w-4 h-4 text-brand-orange" />
+                  <span className="text-sm text-brand-orange font-medium">
+                    Role detected: <span className="font-bold uppercase">{detectedRole === 'teacher' ? 'Faculty' : 'Student'}</span>
+                  </span>
+                </div>
+              )}
+              {formData.email && !errors.email && !detectedRole && formData.email.includes('@') && (
+                <p className="mt-1.5 text-xs font-medium text-yellow-400 ml-1">
+                  Use @mitsgwalior.in (Faculty) or @mitsgwl.ac.in (Student)
+                </p>
               )}
             </div>
 

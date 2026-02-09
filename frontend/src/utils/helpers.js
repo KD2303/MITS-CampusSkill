@@ -1,3 +1,27 @@
+// Email domain validation
+const ALLOWED_DOMAINS = {
+  'mitsgwalior.in': 'teacher',
+  'mitsgwl.ac.in': 'student',
+};
+
+export const getEmailDomain = (email) => {
+  if (!email || !email.includes('@')) return null;
+  return email.split('@').pop().toLowerCase();
+};
+
+export const getRoleFromEmail = (email) => {
+  const domain = getEmailDomain(email);
+  if (!domain) return null;
+  return ALLOWED_DOMAINS[domain] || null;
+};
+
+export const isAllowedEmailDomain = (email) => {
+  const domain = getEmailDomain(email);
+  return domain ? Object.keys(ALLOWED_DOMAINS).includes(domain) : false;
+};
+
+export const getAllowedDomains = () => Object.keys(ALLOWED_DOMAINS);
+
 // Date formatting utilities
 export const formatDate = (date) => {
   if (!date) return '';
