@@ -12,6 +12,11 @@ import {
   deleteTask,
 } from '../controllers/taskController.js';
 import { protect, isStudent } from '../middleware/auth.js';
+import {
+  createTaskRules,
+  submitTaskRules,
+  reviewTaskRules,
+} from '../middleware/validate.js';
 
 const router = express.Router();
 
@@ -21,11 +26,11 @@ router.get('/user/:userId', getTasksByUser);
 
 // Protected routes
 router.get('/my-tasks', protect, getMyTasks);
-router.post('/', protect, createTask);
+router.post('/', protect, createTaskRules, createTask);
 router.get('/:id', getTask);
 router.put('/:id/take', protect, isStudent, takeTask);
-router.put('/:id/submit', protect, submitTask);
-router.put('/:id/review', protect, reviewTask);
+router.put('/:id/submit', protect, submitTaskRules, submitTask);
+router.put('/:id/review', protect, reviewTaskRules, reviewTask);
 router.put('/:id/reassign', protect, reassignTask);
 router.delete('/:id', protect, deleteTask);
 

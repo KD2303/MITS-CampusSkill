@@ -7,7 +7,8 @@ import {
   rateUser,
   getUserStats,
 } from '../controllers/userController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { rateUserRules } from '../middleware/validate.js';
 
 const router = express.Router();
 
@@ -16,9 +17,9 @@ router.get('/leaderboard', getLeaderboard);
 router.get('/profile/:id', getUserProfile);
 
 // Protected routes
-router.get('/', protect, getUsers);
+router.get('/', protect, authorize('teacher'), getUsers);
 router.put('/profile', protect, updateProfile);
 router.get('/stats', protect, getUserStats);
-router.post('/:id/rate', protect, rateUser);
+router.post('/:id/rate', protect, rateUserRules, rateUser);
 
 export default router;

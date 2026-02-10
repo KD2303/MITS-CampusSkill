@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 // @desc    Get user profile
 // @route   GET /api/users/profile/:id
@@ -92,9 +93,10 @@ export const getUsers = asyncHandler(async (req, res) => {
   }
 
   if (search) {
+    const escapedSearch = escapeRegex(search);
     query.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
+      { name: { $regex: escapedSearch, $options: 'i' } },
+      { email: { $regex: escapedSearch, $options: 'i' } },
     ];
   }
 
@@ -171,8 +173,9 @@ export const rateUser = asyncHandler(async (req, res) => {
     taskId: taskId || null,
   });
 
-  // Update rating points and calculate average
-  user.ratingPoints += 5;
+  // Calculate average rating and total points
+  // Note: ratingPoints are only awarded via task review (reviewTask in taskController),
+  // NOT here, to prevent double-awarding of points.
   user.calculateAverageRating();
   user.calculateTotalPoints();
   await user.save();

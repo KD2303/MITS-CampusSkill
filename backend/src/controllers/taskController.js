@@ -2,6 +2,7 @@ import Task from '../models/Task.js';
 import User from '../models/User.js';
 import ChatRoom from '../models/ChatRoom.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 // @desc    Get all tasks
 // @route   GET /api/tasks
@@ -26,11 +27,12 @@ export const getTasks = asyncHandler(async (req, res) => {
     query.skills = { $in: [skill] };
   }
 
-  // Search in title and description
+  // Search in title and description (escape user input to prevent ReDoS)
   if (search) {
+    const escapedSearch = escapeRegex(search);
     query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
+      { title: { $regex: escapedSearch, $options: 'i' } },
+      { description: { $regex: escapedSearch, $options: 'i' } },
     ];
   }
 
@@ -295,9 +297,9 @@ export const reviewTask = asyncHandler(async (req, res) => {
       takenByUser.creditPoints += task.creditPoints;
     }
 
-    // Add rating points if rating provided
+    // Add rating if provided (rating points are ONLY awarded here during task review,
+    // NOT in the separate rateUser endpoint, to prevent double-awarding)
     if (rating && rating >= 1 && rating <= 5) {
-      takenByUser.ratingPoints += 5; // +5 points for receiving a rating
       takenByUser.ratings.push({
         rating,
         review: feedback,

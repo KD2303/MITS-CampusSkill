@@ -19,17 +19,18 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Connect to socket server
+      // Connect to socket server with JWT authentication
       const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      const token = localStorage.getItem('token');
       const newSocket = io(socketUrl, {
         transports: ['websocket', 'polling'],
+        auth: { token },
       });
 
       newSocket.on('connect', () => {
         console.log('Socket connected');
         setIsConnected(true);
-        // Join user's personal room
-        newSocket.emit('user:online', user._id);
+        // User is auto-joined to personal room via server-side auth
       });
 
       newSocket.on('disconnect', () => {

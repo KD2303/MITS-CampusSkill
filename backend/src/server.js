@@ -1,10 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
+import { sanitizeMiddleware } from './utils/sanitize.js';
 
 // Route imports
 import authRoutes from './routes/authRoutes.js';
@@ -14,9 +19,6 @@ import chatRoutes from './routes/chatRoutes.js';
 
 // Load env vars
 dotenv.config();
-
-// Connect to database
-connectDB();
 
 const app = express();
 const httpServer = createServer(app);
@@ -30,8 +32,11 @@ const io = new Server(httpServer, {
   },
 });
 
+// --- Security middleware ---
+app.use(helmet());
+
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '10kb' })); // Limit body size
 
 // Enable CORS
 app.use(
@@ -41,72 +46,109 @@ app.use(
   })
 );
 
+// Sanitize all incoming requests against NoSQL injection
+app.use(sanitizeMiddleware);
+
+// Apply general rate limiting to all API routes
+app.use('/api', apiLimiter);
+
 // Mount routers
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Server is running' });
+// Health check route (verifies DB connectivity)
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    res.status(dbState === 1 ? 200 : 503).json({
+      success: dbState === 1,
+      message: 'Server is running',
+      database: dbStatus[dbState] || 'unknown',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      success: false,
+      message: 'Health check failed',
+    });
+  }
 });
 
 // Error handler middleware
 app.use(errorHandler);
 
+// --- Socket.IO JWT authentication middleware ---
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (!token) {
+    return next(new Error('Authentication error: No token provided'));
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    next();
+  } catch (err) {
+    return next(new Error('Authentication error: Invalid token'));
+  }
+});
+
 // Socket.IO connection handling
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('User connected:', socket.id, '| userId:', socket.userId);
 
-  // Join user to their personal room
-  socket.on('user:online', (userId) => {
-    connectedUsers.set(userId, socket.id);
-    socket.join(userId);
-    console.log(`User ${userId} is online`);
-  });
+  // Auto-join user to their personal room using authenticated userId
+  connectedUsers.set(socket.userId, socket.id);
+  socket.join(socket.userId);
 
   // Join chat room
   socket.on('chat:join', (chatRoomId) => {
+    if (!chatRoomId || typeof chatRoomId !== 'string') return;
     socket.join(chatRoomId);
-    console.log(`Socket ${socket.id} joined chat room ${chatRoomId}`);
   });
 
   // Leave chat room
   socket.on('chat:leave', (chatRoomId) => {
+    if (!chatRoomId || typeof chatRoomId !== 'string') return;
     socket.leave(chatRoomId);
-    console.log(`Socket ${socket.id} left chat room ${chatRoomId}`);
   });
 
   // Send message
   socket.on('chat:message', (data) => {
+    if (!data || !data.chatRoomId || !data.message) return;
     const { chatRoomId, message } = data;
-    // Broadcast to all users in the chat room except sender
     socket.to(chatRoomId).emit('chat:newMessage', message);
   });
 
   // Typing indicator
   socket.on('chat:typing', (data) => {
+    if (!data || !data.chatRoomId) return;
     const { chatRoomId, user } = data;
     socket.to(chatRoomId).emit('chat:userTyping', user);
   });
 
   // Stop typing indicator
   socket.on('chat:stopTyping', (data) => {
+    if (!data || !data.chatRoomId) return;
     const { chatRoomId, user } = data;
     socket.to(chatRoomId).emit('chat:userStopTyping', user);
   });
 
   // Read receipt
   socket.on('chat:read', (data) => {
-    const { chatRoomId, userId } = data;
-    socket.to(chatRoomId).emit('chat:messagesRead', { userId });
+    if (!data || !data.chatRoomId) return;
+    const { chatRoomId } = data;
+    socket.to(chatRoomId).emit('chat:messagesRead', { userId: socket.userId });
   });
 
-  // Task notifications
+  // Task notifications — use authenticated userId as sender
   socket.on('task:taken', (data) => {
+    if (!data || !data.taskPosterId || !data.message) return;
     const { taskPosterId, message } = data;
     io.to(taskPosterId).emit('notification', {
       type: 'task_taken',
@@ -115,6 +157,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('task:submitted', (data) => {
+    if (!data || !data.taskPosterId || !data.message) return;
     const { taskPosterId, message } = data;
     io.to(taskPosterId).emit('notification', {
       type: 'task_submitted',
@@ -123,6 +166,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('task:completed', (data) => {
+    if (!data || !data.userId || !data.message) return;
     const { userId, message, credits } = data;
     io.to(userId).emit('notification', {
       type: 'task_completed',
@@ -133,13 +177,7 @@ io.on('connection', (socket) => {
 
   // Disconnect
   socket.on('disconnect', () => {
-    // Remove user from connected users
-    for (const [userId, socketId] of connectedUsers.entries()) {
-      if (socketId === socket.id) {
-        connectedUsers.delete(userId);
-        break;
-      }
-    }
+    connectedUsers.delete(socket.userId);
     console.log('User disconnected:', socket.id);
   });
 });
@@ -147,15 +185,48 @@ io.on('connection', (socket) => {
 // Make io accessible to routes
 app.set('io', io);
 
+// --- Start server only when run directly (not imported for tests) ---
 const PORT = process.env.PORT || 5000;
 
-httpServer.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+  
+  httpServer.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+};
+
+// Only start if this file is the entry point (not imported by tests)
+if (process.argv[1]?.includes('server.js')) {
+  startServer();
+}
+
+// --- Graceful shutdown ---
+const gracefulShutdown = (signal) => {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  httpServer.close(() => {
+    console.log('HTTP server closed.');
+    mongoose.connection.close(false).then(() => {
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    });
+  });
+
+  // Force shutdown after 10 seconds
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout.');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
+process.on('unhandledRejection', (err) => {
+  console.error(`Unhandled Rejection: ${err.message}`);
   httpServer.close(() => process.exit(1));
 });
+
+// Export for testing
+export { app, httpServer, io, startServer };
